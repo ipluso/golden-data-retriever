@@ -1,0 +1,356 @@
+<?php
+
+namespace App\Filament\Resources\Dogs;
+
+use App\Filament\Resources\Dogs\Pages\CreateDog;
+use App\Filament\Resources\Dogs\Pages\EditDog;
+use App\Filament\Resources\Dogs\Pages\ListDogs;
+use App\Filament\Resources\Dogs\Schemas\DogForm;
+use App\Filament\Resources\Dogs\Tables\DogsTable;
+use App\Models\Dog;
+use App\Models\DrcParameter;
+use BackedEnum;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
+
+class DogResource extends Resource
+{
+    protected static ?string $model = Dog::class;
+    protected static ?string $navigationLabel = 'Hunde (DRC)';
+    protected static ?int $navigationSort = 1;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->schema([
+                Tabs::make('Hunde-Daten')
+                    ->tabs([
+                        // TAB 1: Stammdaten (bleibt bearbeitbar)
+                        Tabs\Tab::make('Stammdaten')
+                            ->icon('heroicon-m-identification')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    TextInput::make('name')->required()->columnSpan(2),
+                                    TextInput::make('registration_number')->label('ZBNr')->required(),
+                                    TextInput::make('drc_id')->label('DRC-ID')->disabled(),
+                                    Select::make('sex')->options(['M' => 'Rüde', 'F' => 'Hündin']),
+                                    DatePicker::make('date_of_birth'),
+                                    TextInput::make('breed')->default('Nova-Scotia-Duck-Tolling-Retriever'),
+                                ]),
+                            ]),
+
+                        // TAB 2: Klinische Werte (bleibt bearbeitbar)
+                        Tabs\Tab::make('Klinische Werte')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    TextInput::make('hd_score'), TextInput::make('zw_hd')->numeric(),
+                                    TextInput::make('ed_score'), TextInput::make('zw_ed')->numeric(),
+                                ]),
+                            ]),
+
+                        // TAB 3: GENETIK (Jetzt als Badges!)
+                        Tabs\Tab::make('Genetik')
+                            ->icon('heroicon-m-beaker')
+                            ->schema([
+                                // Hier rufen wir die neue Badge-Funktion auf
+                                self::getBadgesField('genetic_tests', 'Genetische Befunde'),
+                            ]),
+
+                        // TAB 4: AUGEN
+                        Tabs\Tab::make('Augen')
+                            ->icon('heroicon-m-eye')
+                            ->schema([
+                                self::getBadgesField('eye_exams', 'Augenuntersuchungen'),
+                            ]),
+
+                        // TAB 5: SONSTIGES
+                        Tabs\Tab::make('Sonstiges')
+                            ->icon('heroicon-m-clipboard-document-list')
+                            ->schema([
+                                self::getBadgesField('orthopedic_details', 'Auflagen & Befunde', 'ortho'),
+                                self::getBadgesField('work_exams', 'Prüfungen & Titel', 'work'),
+                            ]),
+                    ])
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+        ->defaultSort('drc_id', 'asc')
+        ->columns([
+            TextColumn::make('name')
+                ->label('Name')
+                ->searchable()
+                ->weight('bold')
+                ->description(fn (Dog $record) => $record->breed),
+
+            TextColumn::make('date_of_birth')
+                ->label('Wurfdatum')
+                ->sortable()
+                ->date('d.m.Y')
+                ->description(fn (Dog $record) => $record->date_of_birth?->age . ' Jahre'),
+
+            TextColumn::make('registration_number')
+                ->label('ZB-Nr.')
+                ->searchable()->sortable()->fontFamily('mono')->copyable(),
+
+            TextColumn::make('breed')
+                ->label('Rasse')
+                ->searchable()->sortable(),
+
+            TextColumn::make('sex')
+                ->label('Geschlecht')
+                ->badge()
+                ->formatStateUsing(fn ($state) => match ($state) { 'M' => 'Rüde', 'F' => 'Hündin', default => $state })
+                ->color(fn ($state) => match ($state) { 'M' => 'info', 'F' => 'danger', default => 'gray' }),
+
+            TextColumn::make('hd_score')
+                ->label('HD')
+                ->badge()
+                ->color(fn ($state) => match (substr($state, 0, 1)) { 'A' => 'success', 'B' => 'warning', default => 'danger' }),
+
+            TextColumn::make('ed_score')
+                ->label('ED')
+                ->badge()
+                ->color(fn ($state) => in_array($state, ['frei', 'Grenzfall']) ? 'success' : 'gray'),
+
+            // ZUCHTWERTE
+            TextColumn::make('zw_hd')
+                ->label('ZW HD')->sortable()
+                ->badge()
+                ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
+
+            TextColumn::make('zw_ed')
+                ->label('ZW HD')->sortable()
+                ->badge()
+                ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
+
+            TextColumn::make('zw_hc')
+                ->label('ZW HD')->sortable()
+                ->badge()
+                ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
+
+           TextColumn::make('offspring_count')
+               ->label('Nachkommen')
+               ->sortable(),
+
+            // 1. Genetische Tests (Blau)
+            TextColumn::make('genetic_tests')
+                ->label('Gentests')
+                ->badge()
+                ->separator(',')
+                ->limitList(2)
+                ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->genetic_tests))
+                ->color(fn (string $state): string => match (true) {
+                    str_contains(strtolower($state), 'frei') => 'success',      // Grün bei "frei"
+                    str_contains(strtolower($state), 'träger') => 'warning',    // Orange bei "Träger"
+                    str_contains(strtolower($state), 'betroffen') => 'danger',  // Rot bei "betroffen"
+                    default => 'info',                                          // Blau als Standard
+                })
+                ->toggleable(),
+
+            // 2. Augen (Blau)
+            TextColumn::make('eye_exams')
+                ->label('Augen')
+                ->badge()->separator(',')
+                ->limitList(2)
+                ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->eye_exams))
+                ->color('info')
+                ->toggleable(), // Standardmäßig ausgeblendet, um Platz zu sparen
+
+            // 3. Auflagen (Rot - da Einschränkung)
+            TextColumn::make('orthopedic_details')
+                ->label('Auflagen')
+                ->badge()->separator(',')
+                ->limitList(2)
+                ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->orthopedic_details))
+                ->color('info')
+                ->toggleable(),
+
+            // 4. Prüfungen (Gold/Gelb - da Leistung)
+            TextColumn::make('work_exams')
+                ->label('Prüfungen')
+                ->badge()->separator(',')
+                ->limitList(2)
+                ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->work_exams))
+                ->color('info')
+                ->toggleable(),
+        ])
+        ->filters([])
+        ->recordActions([
+        ]);
+    }
+
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListDogs::route('/'),
+            'create' => Pages\CreateDog::route('/create'),
+            'edit' => Pages\EditDog::route('/{record}/edit'),
+        ];
+    }
+
+    private static function resolveJsonLabels(?array $json): array
+    {
+        if (empty($json)) return [];
+
+        // Nur aktive Keys holen
+        $activeKeys = array_keys(array_filter($json, fn($v) => $v === true));
+
+        // Wir holen Label UND Beschreibung und verknüpfen sie
+        // Ergebnis z.B.: "prcd-PRA: Träger" oder "EIC: frei"
+        return DrcParameter::whereIn('param_key', $activeKeys)
+            ->get()
+            ->map(fn ($p) => "{$p->description}: {$p->label}")
+            ->toArray();
+    }
+
+    private static function formatJsonList(?array $json): string
+    {
+        if (empty($json)) return '<span class="text-gray-400 text-sm">- Keine Einträge -</span>';
+
+        $activeKeys = array_keys(array_filter($json, fn($v) => $v === true));
+        $labels = DrcParameter::whereIn('param_key', $activeKeys)->get();
+
+        if ($labels->isEmpty()) return '<span class="text-gray-400 text-sm">- Keine Einträge -</span>';
+
+        return $labels->map(function($param) {
+            // Farb-Logik für die Badges in der Liste
+            $colorClass = match($param->category) {
+                'Prüfungen/Titel' => 'bg-yellow-100 text-yellow-800', // Gold für Preise
+                'Auflagen' => 'bg-red-50 text-red-700', // Rot für Auflagen
+                default => 'bg-blue-50 text-blue-700', // Blau für Medizin
+            };
+
+            return sprintf(
+                '<div class="flex items-center gap-2 mb-1.5">' .
+                '<span class="text-xs font-mono px-1.5 py-0.5 rounded %s border border-opacity-20">%s</span>' .
+                '<span class="font-medium text-sm">%s</span>' .
+                '<span class="text-xs text-gray-500">(%s)</span>' .
+                '</div>',
+                $colorClass,
+                $param->param_key,
+                $param->label,
+                $param->description
+            );
+        })->join('');
+    }
+
+    /**
+     * Erstellt ein Read-Only Feld mit bunten Badges für das Formular.
+     */
+    private static function getBadgesField(string $column, string $label, string $type = 'generic'): Placeholder
+    {
+        return Placeholder::make($column . '_display')
+            ->label($label)
+            ->content(function ($record) use ($column, $type) {
+                // Wenn wir im "Erstellen"-Modus sind, gibt es noch keinen Record
+                if (!$record) {
+                    return new HtmlString('<span class="text-gray-400 italic">Daten werden nach Speichern importiert</span>');
+                }
+
+                // Daten holen (das JSON Array/Objekt)
+                $data = $record->{$column};
+
+                // HTML generieren
+                return new HtmlString(self::renderBadgesHtml($data, $type));
+            });
+    }
+
+    /**
+     * Generiert den HTML-Code für die Badges (mit Farblogik).
+     */
+    private static function renderBadgesHtml(?array $json, string $type): string
+    {
+        if (empty($json)) {
+            return '<span class="text-gray-400 italic text-sm">- Keine Einträge -</span>';
+        }
+
+        // Keys filtern (nur true Werte)
+        // Wir unterstützen hier beide Formate (Liste oder Key=>Value), zur Sicherheit
+        $activeKeys = [];
+        foreach ($json as $key => $value) {
+            if ($value === true || $value === 1 || $value === '1' || $value === 'true') {
+                $activeKeys[] = $key;
+            } elseif (is_int($key) && is_string($value)) {
+                // Falls es eine flache Liste ist ['CondGT_01']
+                $activeKeys[] = $value;
+            }
+        }
+
+        if (empty($activeKeys)) {
+            return '<span class="text-gray-400 italic text-sm">- Keine Einträge -</span>';
+        }
+
+        // Parameter aus DB laden
+        $params = DrcParameter::whereIn('param_key', $activeKeys)->get();
+
+        if ($params->isEmpty()) {
+            return '<span class="text-gray-400 italic text-sm">- Keine bekannten Parameter -</span>';
+        }
+
+        $html = '';
+        foreach ($params as $p) {
+            $html .= '<span class="fi-color fi-color-warning fi-text-color-700 dark:fi-text-color-400 fi-badge fi-size-sm">';
+            // --- FARBLOGIK (Copy & Paste aus Infolist, damit es einheitlich ist) ---
+            $lowerDesc = mb_strtolower($p->description);
+            $lowerLabel = mb_strtolower($p->label);
+
+            if ($type === 'work') {
+                $bgColor = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+            } elseif ($type === 'ortho') {
+                $bgColor = 'bg-red-50 text-red-700 border-red-200';
+            } else {
+                // Gesundheit
+                if (str_contains($lowerDesc, 'frei') || str_contains($lowerLabel, 'frei')) {
+                    $bgColor = 'bg-green-50 text-green-700 border-green-200';
+                } elseif (str_contains($lowerDesc, 'träger')) {
+                    $bgColor = 'bg-orange-50 text-orange-700 border-orange-200';
+                } elseif (str_contains($lowerDesc, 'betroffen')) {
+                    $bgColor = 'bg-red-50 text-red-700 border-red-200';
+                } else {
+                    $bgColor = 'bg-blue-50 text-blue-700 border-blue-200';
+                }
+            }
+
+            // HTML Badge
+            $html .= sprintf(
+                '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium border %s">
+                <span class="font-bold mr-1">%s:</span> %s
+             </span>',
+                $bgColor,
+                $p->description,
+                $p->label
+            );
+            $html .= '</span>';
+        }
+
+        return $html;
+    }
+}

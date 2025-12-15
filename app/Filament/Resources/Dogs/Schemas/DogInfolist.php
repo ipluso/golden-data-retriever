@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Filament\Resources\Dogs\Schemas;
+
+use Filament\Schemas\Schema;
+
+class DogInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                //
+            ]);
+    }
+}
