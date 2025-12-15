@@ -31,7 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('')
             ->login()
-            ->brandName('Golden Data Retriever')
+            //->brandName('Golden Data Retriever')
+            //->brandLogo(asset('images/logo.png'))
+            ->brandLogo(fn () => view('filament.admin.logo'))
+            ->brandLogoHeight('5rem')
             ->colors([
                 'primary' => Color::Amber,
             ])

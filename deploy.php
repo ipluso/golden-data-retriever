@@ -36,7 +36,7 @@ host('dev')
     ->set('port', '222' )
     ->set('branch', 'main')
     ->set('remote_user', 'ipluso')
-    ->set('deploy_path', '/usr/home/ipluso/public_html/sites/fom-golden-data-retriever')
+    ->set('deploy_path', '/usr/home/ipluso/public_html/sites/golden-data-retriever')
     ->set('labels', ['stage' => 'dev']);
 
 // Hooks
