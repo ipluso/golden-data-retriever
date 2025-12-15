@@ -135,12 +135,12 @@ class ImportDrcDogs extends Command
                         'breed' => $dogData['Rasse'] ?? null,
                         'date_of_birth' => $this->parseDate($dogData['Wurfdatum'] ?? null),
                         'sex' => $this->mapSex($dogData['Geschlecht'] ?? null),
+                        'offspring_count' => $this->cleanNum($dogData['AnzNachkommen'] ?? null),
                         'hd_score' => $this->cleanValue($dogData['HD_Grad'] ?? null),
                         'ed_score' => $this->cleanValue($dogData['ED_rechts'] ?? null),
                         'zw_hd' => $this->parseZw($dogData['ZW_HD'] ?? null),
                         'zw_ed' => $this->parseZw($dogData['ZW_ED'] ?? null),
                         'zw_hc' => $this->parseZw($dogData['ZW_HC'] ?? null),
-                        'offspring_count' => $this->parseZw($dogData['AnzNachkommen'] ?? null),
                     ]
                 );
 
@@ -164,7 +164,7 @@ class ImportDrcDogs extends Command
 
             $bar->finish();
             $this->newLine();
-
+            die();
         }
 
         $this->info("✅ Import erfolgreich abgeschlossen!");
@@ -207,14 +207,14 @@ class ImportDrcDogs extends Command
     }
 
     /**
-     * Hilfsfunktion: Wandelt "30/10/2017" in "2017-10-30" um.
+     * Hilfsfunktion: Wandelt "10/30/2017" in "2017-10-30" um.
      */
     private function parseDate($dateString)
     {
         if (empty($dateString) || $dateString === '-' || strlen($dateString) < 6) return null;
 
         try {
-            return Carbon::createFromFormat('d/m/Y', $dateString)->format('Y-m-d');
+            return Carbon::createFromFormat('m/d/Y', $dateString)->format('Y-m-d');
         } catch (\Exception $e) {
             // Fallback für andere Formate oder fehlerhafte Daten
             return null;
@@ -242,6 +242,17 @@ class ImportDrcDogs extends Command
             return null;
         }
         return trim($value);
+    }
+
+    /**
+     * Hilfsfunktion: Bereinigt "-" und leere Strings.
+     */
+    private function cleanNum($value)
+    {
+        if (empty($value) || $value === '-') {
+            return 0;
+        }
+        return (int) $value;
     }
 
     /**

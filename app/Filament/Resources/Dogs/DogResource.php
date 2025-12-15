@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Dogs;
 
+use App\Filament\Exports\DogExporter;
 use App\Filament\Resources\Dogs\Pages\CreateDog;
 use App\Filament\Resources\Dogs\Pages\EditDog;
 use App\Filament\Resources\Dogs\Pages\ListDogs;
@@ -10,6 +11,8 @@ use App\Filament\Resources\Dogs\Tables\DogsTable;
 use App\Models\Dog;
 use App\Models\DrcParameter;
 use BackedEnum;
+use Filament\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;

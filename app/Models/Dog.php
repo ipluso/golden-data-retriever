@@ -22,6 +22,7 @@ class Dog extends Model
         'breed',
         'date_of_birth',
         'sex',
+        'offspring_count',
 
         // Gesundheit (Phänotyp)
         'hd_score',
