@@ -112,9 +112,9 @@ class DogResource extends Resource
                 ->label('ZB-Nr.')
                 ->searchable()->sortable()->fontFamily('mono')->copyable(),
 
-            TextColumn::make('breed')
-                ->label('Rasse')
-                ->searchable()->sortable(),
+//            TextColumn::make('breed')
+//                ->label('Rasse')
+//                ->searchable()->sortable(),
 
             TextColumn::make('sex')
                 ->label('Geschlecht')

@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\BreedsChart;
+use App\Filament\Widgets\DogStatsOverview;
+use App\Filament\Widgets\HealthChart;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -26,9 +29,9 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('')
             ->login()
-            ->brandName('FOM - Golden Data Retriever')
+            ->brandName('Golden Data Retriever')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -40,7 +43,9 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+                DogStatsOverview::class,
+                BreedsChart::class,
+                HealthChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
