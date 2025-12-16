@@ -1,5 +1,5 @@
 # https://deployer.org/docs/7.x/avoid-php-fpm-reloading
-opcache.revalidate_path=1
+# opcache.revalidate_path=1
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
