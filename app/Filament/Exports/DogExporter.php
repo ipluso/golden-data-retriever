@@ -15,8 +15,7 @@ class DogExporter extends Exporter
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
+            ExportColumn::make('id'),
             ExportColumn::make('drc_id'),
             ExportColumn::make('registration_number'),
             ExportColumn::make('name'),
@@ -33,9 +32,6 @@ class DogExporter extends Exporter
             ExportColumn::make('eye_exams'),
             ExportColumn::make('orthopedic_details'),
             ExportColumn::make('work_exams'),
-            ExportColumn::make('deleted_at'),
-            ExportColumn::make('created_at'),
-            ExportColumn::make('updated_at'),
         ];
     }
 

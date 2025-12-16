@@ -11,6 +11,7 @@ use App\Filament\Resources\Dogs\Tables\DogsTable;
 use App\Models\Dog;
 use App\Models\DrcParameter;
 use BackedEnum;
+use UnitEnum;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Components\CheckboxList;
@@ -32,9 +33,12 @@ use Illuminate\Support\HtmlString;
 class DogResource extends Resource
 {
     protected static ?string $model = Dog::class;
-    protected static ?string $navigationLabel = 'Hunde (DRC)';
+    protected static ?string $navigationLabel = 'Hunde';
     protected static ?int $navigationSort = 1;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Deutscher Retriever Club';
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -13,6 +13,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -35,6 +36,9 @@ class AdminPanelProvider extends PanelProvider
             //->brandLogo(asset('images/logo.png'))
             ->brandLogo(fn () => view('filament.admin.logo'))
             ->brandLogoHeight('5rem')
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth(Width::Full)
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
             ])
