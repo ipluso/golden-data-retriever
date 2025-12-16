@@ -39,6 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->globalSearch(false)
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])

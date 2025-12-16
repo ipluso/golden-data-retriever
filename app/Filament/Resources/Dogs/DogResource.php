@@ -203,6 +203,14 @@ class DogResource extends Resource
                 ->toggleable(isToggledHiddenByDefault: true),
         ])
         ->filters([])
+        ->toolbarActions([
+            //ExportAction::make()
+            //    ->exporter(DogExporter::class)
+            //    ->formats([
+            //        ExportFormat::Csv,
+            //    ])
+            //    ->columnMappingColumns(3),
+        ])
         ->recordActions([
         ]);
     }
