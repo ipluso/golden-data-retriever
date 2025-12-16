@@ -139,28 +139,32 @@ class DogResource extends Resource
             TextColumn::make('zw_hd')
                 ->label('ZW HD')->sortable()
                 ->badge()
+                ->toggleable()
                 ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
 
             TextColumn::make('zw_ed')
-                ->label('ZW HD')->sortable()
+                ->label('ZW ED')->sortable()
                 ->badge()
+                ->toggleable()
                 ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
 
             TextColumn::make('zw_hc')
-                ->label('ZW HD')->sortable()
+                ->label('ZW HC')->sortable()
                 ->badge()
+                ->toggleable()
                 ->color(fn ($state) => $state < 95 ? 'success' : ($state > 105 ? 'danger' : 'warning')),
 
-           TextColumn::make('offspring_count')
-               ->label('Nachkommen')
-               ->sortable(),
+            TextColumn::make('offspring_count')
+                ->label('Nachkommen')
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
 
-            // 1. Genetische Tests (Blau)
             TextColumn::make('genetic_tests')
                 ->label('Gentests')
                 ->badge()
                 ->separator(',')
                 ->limitList(2)
+                ->listWithLineBreaks()
                 ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->genetic_tests))
                 ->color(fn (string $state): string => match (true) {
                     str_contains(strtolower($state), 'frei') => 'success',      // Grün bei "frei"
@@ -169,33 +173,30 @@ class DogResource extends Resource
                     default => 'info',                                          // Blau als Standard
                 })
                 ->toggleable(),
-
-            // 2. Augen (Blau)
             TextColumn::make('eye_exams')
                 ->label('Augen')
                 ->badge()->separator(',')
                 ->limitList(2)
+                ->listWithLineBreaks()
                 ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->eye_exams))
                 ->color('info')
-                ->toggleable(), // Standardmäßig ausgeblendet, um Platz zu sparen
-
-            // 3. Auflagen (Rot - da Einschränkung)
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('orthopedic_details')
                 ->label('Auflagen')
                 ->badge()->separator(',')
                 ->limitList(2)
+                ->listWithLineBreaks()
                 ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->orthopedic_details))
                 ->color('info')
-                ->toggleable(),
-
-            // 4. Prüfungen (Gold/Gelb - da Leistung)
+                ->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('work_exams')
                 ->label('Prüfungen')
                 ->badge()->separator(',')
                 ->limitList(2)
+                ->listWithLineBreaks()
                 ->getStateUsing(fn (Dog $record) => self::resolveJsonLabels($record->work_exams))
                 ->color('info')
-                ->toggleable(),
+                ->toggleable(isToggledHiddenByDefault: true),
         ])
         ->filters([])
         ->recordActions([

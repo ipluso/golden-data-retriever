@@ -164,7 +164,6 @@ class ImportDrcDogs extends Command
 
             $bar->finish();
             $this->newLine();
-            die();
         }
 
         $this->info("✅ Import erfolgreich abgeschlossen!");
