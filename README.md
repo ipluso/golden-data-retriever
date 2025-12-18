@@ -1,6 +1,6 @@
 # Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der Datenbank des Deutschen Retriever Clubs 
 
-![Project Banner](public/images/logo.png | width=100)
+![Project Banner](public/images/logo.png)
 
 Dieses Projekt ist eine Implementierung einer **Data Analytics Pipeline** zur Analyse von Gesundheits- und Zuchtdaten der Retriever-Population. Es entstand im Rahmen des Mastermoduls **"Data Analytics & Machine Learning in der Anwendung"**.
 
