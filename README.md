@@ -52,7 +52,7 @@ Folge diesen Schritten, um die Pipeline lokal in einer isolierten Docker-Umgebun
 1.  **Repository klonen**
     ```bash
     git clone https://github.com/ipluso/golden-data-retriever.git
-    cd drc-fetch
+    cd golden-data-retriever
     ```
 
 2.  **DDEV Umgebung starten**
