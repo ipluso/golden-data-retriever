@@ -94,27 +94,24 @@ ddev php artisan app:import-drc-dogs
 ### Schritt 2: Datenanalyse (Dashboard)
 Rufe das Dashboard im Browser auf, um die integrierten Daten zu sehen:
 
-URL: https://drc-fetch.ddev.site/admin (oder siehe Ausgabe von ddev describe)
+URL: `https://goldendataretriever.ddev.site/` (oder siehe Ausgabe von ddev describe)
 
 Login: Deine in Schritt 5 erstellten Zugangsdaten.
 
 ---
 
 ### 📂 Projektstruktur
-app/Console/Commands/ImportDrcDogs.php: Core Logic. Beinhaltet den API-Client, die Cleaning-Regeln und das Mapping.
-
-app/Models/Dog.php: Das Datenmodell inklusive Type-Casting (JSON).
-
-app/Filament/Resources/DogResource.php: Konfiguration der Tabellenansicht und Filter (Badges).
-
-database/migrations/: Definition des Datenbankschemas.
+* `app/Console/Commands/ImportDrcDogs.php`: Core Logic. Beinhaltet den API-Client, die Cleaning-Regeln und das Mapping.
+* `app/Models/Dog.php`: Das Datenmodell inklusive Type-Casting (JSON).
+* `app/Filament/Resources/DogResource.php`: Konfiguration der Tabellenansicht und Filter (Badges).
+* `database/migrations/`: Definition des Datenbankschemas.
 
 ---
 
 ### 🎓 Modul-Informationen
-Modul: Data Analytics & Machine Learning in der Anwendung
-Titel der Arbeit: Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der DRC-Hundedatenbank
+* Modul: Data Analytics & Machine Learning in der Anwendung
+* Titel der Arbeit: Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der DRC-Hundedatenbank
 
-
+---
 
 Disclaimer: Dieses Projekt dient rein akademischen Zwecken zur Demonstration einer Data Analytics Pipeline. Die Datenhoheit liegt beim Deutschen Retriever Club (DRC).
