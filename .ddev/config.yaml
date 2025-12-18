@@ -1,4 +1,4 @@
-name: FOMGoldenDataRetriever
+name: GoldenDataRetriever
 type: laravel
 docroot: public
 php_version: "8.3"

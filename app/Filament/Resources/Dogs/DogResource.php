@@ -58,6 +58,7 @@ class DogResource extends Resource
                                     TextInput::make('drc_id')->label('DRC-ID')->disabled(),
                                     Select::make('sex')->options(['M' => 'Rüde', 'F' => 'Hündin']),
                                     DatePicker::make('date_of_birth'),
+                                    TextInput::make('breeder'),
                                     TextInput::make('breed')->default('Nova-Scotia-Duck-Tolling-Retriever'),
                                 ]),
                             ]),
@@ -109,6 +110,11 @@ class DogResource extends Resource
                 ->weight('bold')
                 ->description(fn (Dog $record) => $record->breed),
 
+            TextColumn::make('breeder')
+                ->label('Züchter')
+                ->sortable()
+                ->searchable(),
+
             TextColumn::make('date_of_birth')
                 ->label('Wurfdatum')
                 ->sortable()
@@ -119,9 +125,11 @@ class DogResource extends Resource
                 ->label('ZB-Nr.')
                 ->searchable()->sortable()->fontFamily('mono')->copyable(),
 
-//            TextColumn::make('breed')
-//                ->label('Rasse')
-//                ->searchable()->sortable(),
+            TextColumn::make('breed')
+                ->label('Rasse')
+                ->searchable()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
 
             TextColumn::make('sex')
                 ->label('Geschlecht')
