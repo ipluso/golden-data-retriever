@@ -1,6 +1,6 @@
-# Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der Datenbank des Deutschen Retriever Clubs 
+![Project Banner](public/images/logo_small.png)
 
-![Project Banner](public/images/logo.png)
+# Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der Datenbank des Deutschen Retriever Clubs 
 
 Dieses Projekt ist eine Implementierung einer **Data Analytics Pipeline** zur Analyse von Gesundheits- und Zuchtdaten der Retriever-Population. Es entstand im Rahmen des Mastermoduls **"Data Analytics & Machine Learning in der Anwendung"**.
 
@@ -52,7 +52,7 @@ Folge diesen Schritten, um die Pipeline lokal in einer isolierten Docker-Umgebun
 1.  **Repository klonen**
     ```bash
     git clone https://github.com/ipluso/golden-data-retriever.git
-    cd drc-fetch
+    cd golden-data-retriever
     ```
 
 2.  **DDEV Umgebung starten**
