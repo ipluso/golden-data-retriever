@@ -1,4 +1,4 @@
-# 🐕 Implementierung einer Data Analytics Pipeline (DRC Case Study)
+# Implementierung einer Data Analytics Pipeline (DRC Case Study)
 
 ![Project Banner](public/images/logo.png)
 
@@ -13,7 +13,7 @@ Ziel des Projektes ist die automatisierte Akquisition (Ingestion), Bereinigung (
 Das System bildet die ersten kritischen Phasen einer Data Analytics Pipeline ab:
 
 ### 1. Kollektion / Akquisition (Data Ingestion)
-* **Dynamische Datenquelle:** Anbindung der Web-Schnittstelle des DRC (statt statischer Dateiexporte).
+* **Dynamische Datenquelle:** Anbindung der Web-Schnittstelle des DRC.
 * **Batch Ingestion:** Automatisierter Abruf von Bestandsdaten mittels **cURL** und iterativer API-Calls für spezifische Merkmale.
 
 ### 2. Bereinigung (Data Cleaning)
@@ -51,7 +51,7 @@ Folge diesen Schritten, um die Pipeline lokal in einer isolierten Docker-Umgebun
 
 1.  **Repository klonen**
     ```bash
-    git clone [https://github.com/DEIN-USER/drc-fetch.git](https://github.com/DEIN-USER/drc-fetch.git)
+    git clone https://github.com/ipluso/golden-data-retriever.git
     cd drc-fetch
     ```
 
@@ -88,4 +88,4 @@ Folge diesen Schritten, um die Pipeline lokal in einer isolierten Docker-Umgebun
 Starte den ETL-Prozess (Extract, Transform, Load) über die Konsole. Dieser Befehl ruft die API ab, bereinigt die Daten und speichert sie lokal.
 
 ```bash
-ddev artisan drc:import
+ddev php artisan app:import-drc-dogs
