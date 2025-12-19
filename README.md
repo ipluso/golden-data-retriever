@@ -1,6 +1,11 @@
-![Project Banner](public/images/logo_small.png)
+<div align="center">
+<img src="https://github.com/ipluso/golden-data-retriever/blob/32919d91d6295f2d614a4c72392fe89a900f5029/public/images/logo_small.png" alt="" style="max-width: 100%;">
+</div>
 
-# Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der Datenbank des Deutschen Retriever Clubs 
+<h1 align="center">Golden Data Retriever</h1>
+<br><br>
+
+## Implementierung einer Data Analytics Pipeline zur Analyse von Gesundheits- und Zuchtdaten auf Basis der Datenbank des Deutschen Retriever Clubs 
 
 Dieses Projekt ist eine Implementierung einer **Data Analytics Pipeline** zur Analyse von Gesundheits- und Zuchtdaten der Retriever-Population. Es entstand im Rahmen des Mastermoduls **"Data Analytics & Machine Learning in der Anwendung"**.
 
