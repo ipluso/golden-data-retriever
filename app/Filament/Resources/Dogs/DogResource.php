@@ -116,7 +116,7 @@ class DogResource extends Resource
                                                 <a href="{$url}" class="font-medium text-primary-600 underline hover:text-primary-500">
                                                     {$child->name}
                                                 </a>
-                                                <span class="text-gray-500 text-sm">({$child->zb_nr})</span>
+                                                <span class="text-gray-500 text-sm">({$child->registration_number})</span>
                                             </div>
                                         HTML;
                                         })->join('');
