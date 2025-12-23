@@ -41,6 +41,7 @@ class Dog extends Model
         'eye_exams',
         'orthopedic_details',
         'work_exams',
+        'raw_data',
     ];
 
     /**
@@ -53,4 +54,22 @@ class Dog extends Model
         'eye_exams' => 'array',
         'orthopedic_details' => 'array',
         'work_exams' => 'array',
-    ];}
+        'raw_data' => 'array',
+    ];
+
+    public function father()
+    {
+        return $this->belongsTo(Dog::class, 'father_id');
+    }
+
+    public function mother()
+    {
+        return $this->belongsTo(Dog::class, 'mother_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Dog::class, 'father_id')
+            ->orWhere('mother_id', $this->id);
+    }
+}

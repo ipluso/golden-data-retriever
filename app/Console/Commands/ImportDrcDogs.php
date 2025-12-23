@@ -141,6 +141,7 @@ class ImportDrcDogs extends Command
                         'zw_hd' => $this->parseZw($dogData['ZW_HD'] ?? null),
                         'zw_ed' => $this->parseZw($dogData['ZW_ED'] ?? null),
                         'zw_hc' => $this->parseZw($dogData['ZW_HC'] ?? null),
+                        'raw_data' => $dogData,
                     ]
                 );
 

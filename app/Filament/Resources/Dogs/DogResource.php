@@ -11,6 +11,8 @@ use App\Filament\Resources\Dogs\Tables\DogsTable;
 use App\Models\Dog;
 use App\Models\DrcParameter;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Schemas\Components\Group;
 use UnitEnum;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
@@ -48,7 +50,7 @@ class DogResource extends Resource
             ->schema([
                 Tabs::make('Hunde-Daten')
                     ->tabs([
-                        // TAB 1: Stammdaten (bleibt bearbeitbar)
+                        // TAB: Stammdaten (bleibt bearbeitbar)
                         Tabs\Tab::make('Stammdaten')
                             ->icon('heroicon-m-identification')
                             ->schema([
@@ -61,9 +63,69 @@ class DogResource extends Resource
                                     TextInput::make('breeder'),
                                     TextInput::make('breed')->default('Nova-Scotia-Duck-Tolling-Retriever'),
                                 ]),
+                                Group::make()->schema([
+                                    Select::make('father_id')
+                                        ->relationship('father', 'name')
+                                        ->label('Vater')
+                                        ->searchable()
+                                        ->preload()
+                                        ->suffixAction(
+                                            Action::make('view_father')
+                                            ->icon('heroicon-m-arrow-top-right-on-square')
+                                            ->tooltip('Zum Vater springen')
+                                                ->url(function ($state) {
+                                                    if (!$state) return null;
+                                                    return DogResource::getUrl('edit', ['record' => $state]);
+                                                })
+                                                ->hidden(fn ($state) => $state === null),
+                                        ),
+                                    Select::make('mother_id')
+                                        ->relationship('mother', 'name')
+                                        ->label('Mutter')
+                                        ->searchable()
+                                        ->preload()
+                                        ->suffixAction(
+                                            Action::make('view_mother')
+                                                ->icon('heroicon-m-arrow-top-right-on-square')
+                                                ->tooltip('Zur Mutter springen')
+                                                ->url(function ($state) {
+                                                    if (!$state) return null;
+                                                    return DogResource::getUrl('edit', ['record' => $state]);
+                                                })
+                                                ->hidden(fn ($state) => $state === null),
+                                        ),
+                                ])->columns(2),
                             ]),
 
-                        // TAB 2: Klinische Werte (bleibt bearbeitbar)
+                        // TAB: NACHKOMMEN
+                        Tabs\Tab::make('Nachkommen')
+                            ->icon('heroicon-m-users') // Ein passendes Icon
+                            ->badge(fn ($record) => $record?->children?->count()) // Zeigt Anzahl im Tab-Titel an!
+                            ->schema([
+                                Placeholder::make('children_list')
+                                    ->hiddenLabel() // Label ausblenden, der Tab-Titel reicht
+                                    ->content(function ($record) {
+                                        if (!$record || $record->children->count() === 0) {
+                                            return 'Keine Nachkommen verzeichnet.';
+                                        }
+
+                                        $links = $record->children->map(function ($child) {
+                                            $url = DogResource::getUrl('edit', ['record' => $child->id]);
+                                            return <<<HTML
+                                            <div class="mb-1">
+                                                <a href="{$url}" class="font-medium text-primary-600 underline hover:text-primary-500">
+                                                    {$child->name}
+                                                </a>
+                                                <span class="text-gray-500 text-sm">({$child->zb_nr})</span>
+                                            </div>
+                                        HTML;
+                                        })->join('');
+
+                                        return new HtmlString($links);
+                                    }),
+                            ]),
+
+                        // TAB: Klinische Werte (bleibt bearbeitbar)
                         Tabs\Tab::make('Klinische Werte')
                             ->schema([
                                 Grid::make(2)->schema([
@@ -72,22 +134,22 @@ class DogResource extends Resource
                                 ]),
                             ]),
 
-                        // TAB 3: GENETIK (Jetzt als Badges!)
+                        // TAB: GENETIK (Jetzt als Badges!)
                         Tabs\Tab::make('Genetik')
                             ->icon('heroicon-m-beaker')
                             ->schema([
                                 // Hier rufen wir die neue Badge-Funktion auf
                                 self::getBadgesField('genetic_tests', 'Genetische Befunde'),
-                            ]),
+                             ]),
 
-                        // TAB 4: AUGEN
+                        // TAB: AUGEN
                         Tabs\Tab::make('Augen')
                             ->icon('heroicon-m-eye')
                             ->schema([
                                 self::getBadgesField('eye_exams', 'Augenuntersuchungen'),
                             ]),
 
-                        // TAB 5: SONSTIGES
+                        // TAB: SONSTIGES
                         Tabs\Tab::make('Sonstiges')
                             ->icon('heroicon-m-clipboard-document-list')
                             ->schema([
@@ -136,6 +198,28 @@ class DogResource extends Resource
                 ->badge()
                 ->formatStateUsing(fn ($state) => match ($state) { 'M' => 'Rüde', 'F' => 'Hündin', default => $state })
                 ->color(fn ($state) => match ($state) { 'M' => 'info', 'F' => 'danger', default => 'gray' }),
+
+            TextColumn::make('father.name')
+                ->label('Vater')
+                ->limit(10)
+                ->searchable()
+                ->url(fn ($record) => $record->father_id
+                    ? DogResource::getUrl('edit', ['record' => $record->father_id])
+                    : null
+                )
+                ->color('primary')
+                ->placeholder('-'),
+
+            TextColumn::make('mother.name')
+                ->label('Mutter')
+                ->limit(10)
+                ->searchable()
+                ->url(fn ($record) => $record->mother_id
+                    ? DogResource::getUrl('edit', ['record' => $record->mother_id])
+                    : null
+                )
+                ->color('primary')
+                ->placeholder('-'),
 
             TextColumn::make('hd_score')
                 ->label('HD')
