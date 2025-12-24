@@ -50,6 +50,8 @@ class DrcParameterResource extends Resource
                     ->required(),
                 TextInput::make('label')
                     ->default(null),
+                TextInput::make('translation')
+                    ->required(),
                 TextInput::make('target_column')
                     ->required(),
             ]);
@@ -64,6 +66,7 @@ class DrcParameterResource extends Resource
                 TextEntry::make('description'),
                 TextEntry::make('label')
                     ->placeholder('-'),
+                TextEntry::make('translation'),
                 TextEntry::make('target_column'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
@@ -88,6 +91,8 @@ class DrcParameterResource extends Resource
                 TextColumn::make('description')
                     ->searchable(),
                 TextColumn::make('label')
+                    ->searchable(),
+                TextColumn::make('translation')
                     ->searchable(),
                 TextColumn::make('target_column')
                     ->searchable(),

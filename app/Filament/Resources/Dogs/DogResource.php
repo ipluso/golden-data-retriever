@@ -12,6 +12,7 @@ use App\Models\Dog;
 use App\Models\DrcParameter;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Group;
 use UnitEnum;
 use Filament\Actions\ExportAction;
@@ -155,6 +156,23 @@ class DogResource extends Resource
                             ->schema([
                                 self::getBadgesField('orthopedic_details', 'Auflagen & Befunde', 'ortho'),
                                 self::getBadgesField('work_exams', 'Prüfungen & Titel', 'work'),
+                            ]),
+                        // TAB: Import
+                        Tabs\Tab::make('Import')
+                            ->icon('heroicon-m-circle-stack')
+                            ->schema([
+                                Textarea::make('raw_data')
+                                    ->label('') // Kein Label nötig, da Section-Header reicht
+                                    ->rows(20) // Genug Platz geben
+                                    ->disabled() // Nicht editierbar machen
+                                    ->columnSpanFull()
+                                    // WICHTIG: Das Array wieder in schönen Text umwandeln
+                                    ->formatStateUsing(fn ($state) => json_encode(
+                                        $state,
+                                        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                                    ))
+                                    // Optional: Code-Font für bessere Lesbarkeit
+                                    ->extraAttributes(['class' => 'font-mono text-xs']),
                             ]),
                     ])
                     ->columnSpanFull(),
