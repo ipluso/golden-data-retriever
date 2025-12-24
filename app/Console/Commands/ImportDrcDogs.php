@@ -7,6 +7,7 @@ use App\Models\Dog;
 use App\Models\DrcParameter;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use App\Services\DrcApiService;
 
 class ImportDrcDogs extends Command
 {
@@ -27,7 +28,7 @@ class ImportDrcDogs extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(DrcApiService $api)
     {
         // 1. Parameter aus der Datenbank laden
         $parameters = DrcParameter::all();
@@ -83,7 +84,7 @@ class ImportDrcDogs extends Command
             $currentPayload = $basePayload;
             $currentPayload[$param->param_key] = 'true';
 
-            $jsonResult = $this->executeCurl($currentPayload);
+            $jsonResult = $api->fetch($currentPayload);//$this->executeCurl($currentPayload);
 
             // 4. Ergebnis prüfen & Decodieren
             if (!$jsonResult) {
@@ -91,20 +92,7 @@ class ImportDrcDogs extends Command
                 continue;
             }
 
-            // Wir entfernen Leerzeichen am Anfang/Ende
-            $jsonResult = trim($jsonResult);
-
-            // Wenn der String mit '(' beginnt und mit ')' endet, entfernen wir diese
-            if (str_starts_with($jsonResult, '(') && str_ends_with($jsonResult, ')')) {
-                // substr(string, start, length). -1 bei length schneidet das letzte Zeichen ab.
-                $jsonResult = substr($jsonResult, 1, -1);
-            }
-
-            // Sicherheitshalber nochmal trimmen (falls Leerzeichen IN den Klammern waren)
-            $jsonResult = trim($jsonResult);
-
-            $dogsRaw = json_decode($jsonResult, true);
-            $dogs = is_array($dogsRaw['results']) ? $dogsRaw['results'] : [];
+            $dogs = is_array($jsonResult['results']) ? $jsonResult['results'] : [];
             $count = count($dogs);
 
             $this->comment("   -> $count Hunde gefunden. Verarbeite...");

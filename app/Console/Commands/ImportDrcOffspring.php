@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Dog;
+use App\Services\DrcApiService;
 use Illuminate\Console\Command;
 
 class ImportDrcOffspring extends Command
@@ -24,14 +25,14 @@ class ImportDrcOffspring extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(DrcApiService $api)
     {
         $this->info('Starte Verknüpfung der Stammbäume (Lineage Linking)...');
 
         // 1. Hole alle Hunde, die laut Basis-Daten Nachkommen haben sollten
         $parents = Dog::where('offspring_count', '>', 0)->cursor();
 
-        $bar = $this->output->createProgressBar(Dog::count());
+        $bar = $this->output->createProgressBar(count($parents));
         $bar->start();
 
         foreach ($parents as $parent) {
@@ -50,7 +51,15 @@ class ImportDrcOffspring extends Command
             }
 
             // 2. API Aufruf (in eigene Funktion ausgelagert)
-            $jsonResult = $this->fetchSuccessorsFromApi($parent->registration_number, $parent->breed, $apiGender);
+             $payload = [
+                'start' => 0,
+                'limit' => 500,
+                'task' => 'SUCCESSOR',
+                'ZBNr' => $parent->registration_number,
+                'Breed' => $parent->breed,
+                'Gender' => $apiGender,
+            ];
+            $jsonResult = $api->fetch($payload);
 
             // 4. Ergebnis prüfen & Decodieren
             if (!$jsonResult) {
@@ -58,20 +67,7 @@ class ImportDrcOffspring extends Command
                 continue;
             }
 
-            // Wir entfernen Leerzeichen am Anfang/Ende
-            $jsonResult = trim($jsonResult);
-
-            // Wenn der String mit '(' beginnt und mit ')' endet, entfernen wir diese
-            if (str_starts_with($jsonResult, '(') && str_ends_with($jsonResult, ')')) {
-                // substr(string, start, length). -1 bei length schneidet das letzte Zeichen ab.
-                $jsonResult = substr($jsonResult, 1, -1);
-            }
-
-            // Sicherheitshalber nochmal trimmen (falls Leerzeichen IN den Klammern waren)
-            $jsonResult = trim($jsonResult);
-
-            $dogsRaw = json_decode($jsonResult, true);
-            $dogs = is_array($dogsRaw['results']) ? $dogsRaw['results'] : [];
+            $dogs = is_array($jsonResult['results']) ? $jsonResult['results'] : [];
             // 3. Verarbeitung der Ergebnisse
             if (!empty($dogs)) {
                 $this->processChildren($parent, $dogs);
@@ -153,7 +149,7 @@ class ImportDrcOffspring extends Command
                 -H 'sec-ch-ua: \"Google Chrome\";v=\"137\", \"Chromium\";v=\"137\", \"Not/A)Brand\";v=\"24\"' \
                 -H 'sec-ch-ua-mobile: ?0' \
                 -H 'sec-ch-ua-platform: \"macOS\"' \
-                --data-raw 'start=0&limit=500&task=SUCCESSOR&ZBNr={$encodedZbnr}&Breed={$encodedBreed}&Gender={$gender}'";
+                --data-raw ''";
 
         // Ausführen und Rückgabe (Output) fangen
         // shell_exec gibt den Output als String zurück
